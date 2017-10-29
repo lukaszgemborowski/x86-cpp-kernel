@@ -1,22 +1,8 @@
 #include "x86/gdt.h"
+#include "x86/vga.h"
 #include <initializer_list>
 
 std::uint64_t gdt[5];
-
-void putchar(int x, int y, char chr)
-{
-	constexpr auto width = 80;
-	unsigned char *vga = reinterpret_cast<unsigned char *>(0xB8000);
-
-	*(vga + 2*(y * width + x)) = chr;
-}
-
-void putstring(int x, int y, const char *text)
-{
-	while (*text) {
-		putchar(x++, y, *text++);
-	}
-}
 
 void x86_init_gdt()
 {
@@ -33,10 +19,11 @@ void x86_init_gdt()
 extern "C"
 void main()
 {
-	putchar(0, 0, 'X');
-	putstring(0, 0, "Hello World");
+	x86::vga screen;
+	screen.clear();
+	screen.puts("Hello World");
 
 	x86_init_gdt();
 
-	putstring(0, 1, "GDT loaded");
+	screen.putsat(0, 1, "GDT loaded");
 }
