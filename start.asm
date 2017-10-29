@@ -7,7 +7,7 @@
 bits 32
 
 global _start
-extern main, _stack_top
+extern main, _stack_top, init_globals
 
 section .multiboot
 	align 4
@@ -20,6 +20,7 @@ section .multiboot
 section .text
 _start:
 	mov esp, _stack_top
+	call init_globals
 	call main
 	cli
 	hlt

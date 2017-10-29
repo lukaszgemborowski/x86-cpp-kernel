@@ -16,10 +16,11 @@ void x86_init_gdt()
 	x86::reload_gdt<0x8, 0x10>(x86::gdtr(gdt, 5));
 }
 
+x86::vga screen;
+
 extern "C"
 void main()
 {
-	x86::vga screen;
 	screen.clear();
 	screen.puts("Hello World");
 

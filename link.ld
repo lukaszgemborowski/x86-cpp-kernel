@@ -20,4 +20,10 @@ SECTIONS {
 		. += 0x4000 ;
 		_stack_top = . ;
 	}
+
+	.init_array : {
+		_init_array_begin = . ;
+		*(.init_array)
+		_init_array_end = . ;
+	}
 } 
