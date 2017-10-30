@@ -1,4 +1,4 @@
-typedef void (*init_func)();
+using init_func = void(*)();
 
 extern init_func _init_array_begin[];
 extern init_func _init_array_end;
