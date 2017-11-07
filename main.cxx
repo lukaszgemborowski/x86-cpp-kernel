@@ -1,6 +1,7 @@
 #include "x86/gdt.h"
 #include "x86/vga.h"
 #include <initializer_list>
+#include "print.h"
 
 std::uint64_t gdt[5];
 
@@ -22,7 +23,7 @@ extern "C"
 void main()
 {
 	screen.clear();
-	screen.puts("Hello World");
+	kernel::print(screen, "Hello: ", 666);
 
 	x86_init_gdt();
 
