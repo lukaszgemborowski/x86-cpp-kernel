@@ -1,5 +1,6 @@
 #include "x86/gdt.h"
 #include "x86/vga.h"
+#include "x86/regs.h"
 #include <initializer_list>
 #include "print.h"
 
@@ -24,6 +25,9 @@ void main()
 {
 	screen.clear();
 	kernel::print(screen, "Hello: ", 666, ", ", kernel::hex('A'));
+	kernel::print(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::esp>()));
+	kernel::print(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::cr0>()));
+	kernel::print(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::cr4>()));
 
 	x86_init_gdt();
 
