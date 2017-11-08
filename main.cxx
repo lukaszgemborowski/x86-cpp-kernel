@@ -23,7 +23,7 @@ extern "C"
 void main()
 {
 	screen.clear();
-	kernel::print(screen, "Hello: ", 666);
+	kernel::print(screen, "Hello: ", 666, ", ", kernel::hex('A'));
 
 	x86_init_gdt();
 
