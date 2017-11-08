@@ -32,12 +32,16 @@ void print_one(Out &out, hex_value<Int> &&value)
 {
 	constexpr auto buffer_len = sizeof(Int)*2+1;
 	char res[buffer_len];
+	char chars[] = {'0', '1', '2', '3', '4',
+					'5', '6', '7', '8', '9',
+					'A', 'B', 'C', 'D', 'E',
+					'F'};
 
 	res[buffer_len - 1] = 0;
 
 	for (auto i = 0; i < sizeof(Int)*2; i ++) {
 		const auto curr = (sizeof(Int) * 2) - i - 1;
-		res[i] = '0' + ((value.value >> (curr * 4)) & 0xf);
+		res[i] = chars[((value.value >> (curr * 4)) & 0xf)];
 	}
 
 	out.puts("0x");
