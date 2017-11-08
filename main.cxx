@@ -24,12 +24,12 @@ extern "C"
 void main()
 {
 	screen.clear();
-	kernel::print(screen, "Hello: ", 666, ", ", kernel::hex('A'));
-	kernel::print(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::esp>()));
-	kernel::print(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::cr0>()));
-	kernel::print(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::cr4>()));
+	kernel::println(screen, "Hello: ", 666, ", ", kernel::hex('A'));
+	kernel::println(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::esp>()));
+	kernel::println(screen, "CR0: ", kernel::hex(x86::regs::get<x86::regs::cr0>()));
+	kernel::println(screen, "CR4: ", kernel::hex(x86::regs::get<x86::regs::cr4>()));
 
 	x86_init_gdt();
 
-	screen.putsat(0, 1, "GDT loaded");
+	kernel::println(screen, "new GDT loaded");
 }

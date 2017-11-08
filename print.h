@@ -93,6 +93,12 @@ void print(Out &dev, First first, Args&&... args)
 	print(dev, std::forward<Args>(args)...);
 }
 
+template<typename Out, typename First, typename... Args>
+void println(Out &dev, First first, Args&&... args)
+{
+	print(dev, std::forward<First>(first), std::forward<Args>(args)..., "\n");
+}
+
 }
 
 #endif

@@ -30,6 +30,12 @@ struct vga
 			y_ ++;
 		}
 
+		if (chr == '\n') {
+			x_ = 0;
+			y_ ++;
+			return;
+		}
+
 		putat(x_++, y_, chr);
 	}
 
