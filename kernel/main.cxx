@@ -1,10 +1,12 @@
 #include "x86/gdt.h"
+#include "x86/idt.h"
 #include "x86/vga.h"
 #include "x86/regs.h"
 #include <initializer_list>
 #include "print.h"
 
 std::uint64_t gdt[5];
+kernel::x86::idt_d idt[32];
 
 void x86_init_gdt()
 {
@@ -20,6 +22,13 @@ void x86_init_gdt()
 
 x86::vga screen;
 
+void isr()
+{
+	kernel::println(screen, "interrupt");
+	while (true)
+		;
+}
+
 extern "C"
 void main()
 {
@@ -30,6 +39,12 @@ void main()
 	kernel::println(screen, "CR4: ", kernel::hex(x86::regs::get<x86::regs::cr4>()));
 
 	x86_init_gdt();
+
+	for (int i = 0; i < 32; i ++) {
+		kernel::x86::set_idt_interrupt(idt[i], 8, (std::uint32_t)&isr, true);
+	}
+
+	kernel::x86::reload_idt(kernel::x86::idtr(idt, 32));
 
 	kernel::println(screen, "new GDT loaded");
 }
