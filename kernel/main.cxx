@@ -47,4 +47,7 @@ void main()
 	kernel::x86::reload_idt(kernel::x86::idtr(idt, 32));
 
 	kernel::println(screen, "new GDT loaded");
+
+	// interrupt check
+	kernel::println(screen, 1/0);
 }
