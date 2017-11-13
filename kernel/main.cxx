@@ -6,7 +6,7 @@
 #include "print.h"
 
 std::uint64_t gdt[5];
-kernel::x86::idt_d idt[32];
+kernel::x86::idt_table<32> idt;
 
 void x86_init_gdt()
 {
@@ -22,6 +22,7 @@ void x86_init_gdt()
 
 x86::vga screen;
 
+/* WARNING: this is not proper ISR! Do not return from this function */
 void isr()
 {
 	kernel::println(screen, "interrupt");
@@ -41,10 +42,10 @@ void main()
 	x86_init_gdt();
 
 	for (int i = 0; i < 32; i ++) {
-		kernel::x86::set_idt_interrupt(idt[i], 8, (std::uint32_t)&isr, true);
+		idt.set_interrupt(i, 8, (std::uint32_t)&isr, true);
 	}
 
-	kernel::x86::reload_idt(kernel::x86::idtr(idt, 32));
+	idt.reload();
 
 	kernel::println(screen, "new GDT loaded");
 

@@ -8,40 +8,60 @@ namespace kernel
 namespace x86
 {
 
-using idt_d = std::uint64_t;
-
-void set_idt_interrupt(idt_d &descriptor, std::uint16_t segment, std::uint32_t offset, bool present)
+template<std::size_t Size>
+class idt_table
 {
-	descriptor = (offset >> 16) & 0xffff;
-	descriptor <<= 16;
-	descriptor |= (present << 15) | 0xE00;
-	descriptor <<= 16;
-	descriptor |= segment;
-	descriptor <<= 16;
-	descriptor |= offset & 0xffff;
-}
+	using idt_d = std::uint64_t;
 
-struct __attribute__ ((packed)) idtr {
-	std::uint16_t limit;
-	std::uint32_t base;
+	/* IDT register is 48 bit long, first 16 bit value is
+	 * so called "limit", holding an offset to last byte
+	 * in IDT table. Next theere are 32 bits of base address
+	 * this is actual pointer to IDT table. This is just a helper
+	 * class to store data properly. */
+	struct __attribute__ ((packed)) idtr {
+		std::uint16_t limit;
+		std::uint32_t base;
 
-	idtr(std::uint64_t *idt_table, std::size_t count) :
-		limit (count * 8 - 1),
-		base (reinterpret_cast<std::uint32_t>(idt_table))
-	{}
+		idtr(std::uint64_t *idt_table, std::size_t count) :
+			limit (count * 8 - 1),
+			base (reinterpret_cast<std::uint32_t>(idt_table))
+		{}
+	};
+
+	/* Load IDR register, this makes new IDT table "active" */
+	void reload_idt(idtr reg)
+	{
+		asm (
+			"lidt %0\n"
+			"sti\n"
+			:: "m"(reg));
+	}
+
+public:
+	void set_interrupt(std::size_t n, std::uint16_t segment, std::uint32_t offset, bool present)
+	{
+		auto &descriptor = idt[n];
+
+		descriptor = (offset >> 16) & 0xffff;
+		descriptor <<= 16;
+		descriptor |= (present << 15) | 0xE00;
+		descriptor <<= 16;
+		descriptor |= segment;
+		descriptor <<= 16;
+		descriptor |= offset & 0xffff;
+	}
+
+	void reload()
+	{
+		idtr r(idt, Size);
+		reload_idt(r);
+	}
+
+private:
+	idt_d idt[Size];
 };
 
-void reload_idt(idtr reg)
-{
-	asm (
-		"lidt %0\n"
-		"sti\n"
-		:: "m"(reg));
-}
-
-
-
-}
-}
+} // namespace x86
+} // namespace kernel
 
 #endif
