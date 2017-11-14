@@ -31,7 +31,7 @@ class idt_table
 	/* Load IDR register, this makes new IDT table "active" */
 	void reload_idt(idtr reg)
 	{
-		asm (
+		asm volatile (
 			"lidt %0\n"
 			"sti\n"
 			:: "m"(reg));
