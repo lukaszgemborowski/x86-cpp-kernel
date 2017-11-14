@@ -1,10 +1,13 @@
 #include "x86/gdt.h"
+#include "x86/idt.h"
 #include "x86/vga.h"
 #include "x86/regs.h"
+#include "x86/isrs.h"
 #include <initializer_list>
 #include "print.h"
 
 std::uint64_t gdt[5];
+kernel::x86::idt_table<32> idt;
 
 void x86_init_gdt()
 {
@@ -20,6 +23,19 @@ void x86_init_gdt()
 
 x86::vga screen;
 
+extern "C" void isr_handler0(std::uint32_t eip)
+{
+	kernel::println(screen, "div by zero from: 0x", kernel::hex(eip));
+	asm("hlt");
+}
+
+extern "C" void isr_handler8(std::uint32_t source_ip)
+{
+	kernel::println(screen, "double fault from ", kernel::hex(source_ip) ,", aborting");
+
+	asm("hlt");
+}
+
 extern "C"
 void main()
 {
@@ -31,5 +47,20 @@ void main()
 
 	x86_init_gdt();
 
+	for (int i = 0; i < 32; i ++) {
+		idt.set_interrupt(i, 8, 0, false);
+	}
+
+	idt.set_interrupt(0, 8, (std::uint32_t)&isr0, true);
+	idt.set_interrupt(8, 8, (std::uint32_t)&isr8, true);
+
+	idt.reload();
+
 	kernel::println(screen, "new GDT loaded");
+
+	// interrupt check
+	kernel::println(screen, "Triggering div by zero exception by executing 1/0 statement");
+	asm volatile(
+		"movw $0, %ax\n"
+		"divw %ax, %ax\n");
 }

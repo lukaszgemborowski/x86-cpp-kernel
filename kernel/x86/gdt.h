@@ -78,7 +78,7 @@ struct __attribute__ ((packed)) gdtr {
 template<std::uint32_t CS, std::uint32_t DS>
 void reload_gdt(gdtr reg)
 {
-	asm (
+	asm volatile (
 		"cli\n"
 		"lgdt %0\n"
 		"ljmp %1, $reload\n"
