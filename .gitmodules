@@ -1,6 +1,3 @@
 [submodule "ext/cpptoolbox"]
 	path = ext/cpptoolbox
 	url = git@github.com:lukaszgemborowski/cpptoolbox.git
-[submodule "ext/meta"]
-	path = ext/meta
-	url = https://github.com/ericniebler/meta.git
