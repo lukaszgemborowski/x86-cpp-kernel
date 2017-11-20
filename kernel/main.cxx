@@ -3,6 +3,7 @@
 #include "x86/vga.h"
 #include "x86/regs.h"
 #include "x86/isrs.h"
+#include "drivers/apic.hpp"
 #include <initializer_list>
 #include "print.h"
 
@@ -39,6 +40,7 @@ extern "C" void isr_handler8(std::uint32_t source_ip)
 extern "C"
 void main()
 {
+	drivers::apic apic;
 	screen.clear();
 	kernel::println(screen, "Hello: ", 666, ", ", kernel::hex('A'));
 	kernel::println(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::esp>()));
@@ -57,6 +59,7 @@ void main()
 	idt.reload();
 
 	kernel::println(screen, "new GDT loaded");
+	kernel::println(screen, "APIC version register: 0x", kernel::hex(apic.access.read<drivers::apic::regs::Version>()));
 
 	// interrupt check
 	kernel::println(screen, "Triggering div by zero exception by executing 1/0 statement");

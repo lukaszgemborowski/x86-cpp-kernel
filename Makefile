@@ -21,7 +21,7 @@ OBJ_ASM=$(SRC_ASM:.asm=.o)
 
 
 CXX_FLAGS=-std=c++17 -fno-builtin -nostdlib -m32 -fno-rtti -fno-exceptions -fno-pie -fno-pic -ffreestanding
-INCLUDES=-Ikernel -Iext/cpptoolbox/include -Iext/meta/include
+INCLUDES=-Ikernel -Iext/cpptoolbox/include -Iext/meta/include -I.
 
 all: $(KERNEL_BIN)
 
