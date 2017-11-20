@@ -46,6 +46,8 @@ void main()
 	kernel::println(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::esp>()));
 	kernel::println(screen, "CR0: ", kernel::hex(x86::regs::get<x86::regs::cr0>()));
 	kernel::println(screen, "CR4: ", kernel::hex(x86::regs::get<x86::regs::cr4>()));
+	kernel::println(screen, "APIC MSR: ", kernel::hex(x86::regs::get_msr(0x1b)));
+	kernel::println(screen, "APIC enabled: ", apic.is_enabled());
 
 	x86_init_gdt();
 
