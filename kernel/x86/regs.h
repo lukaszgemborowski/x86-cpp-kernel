@@ -45,6 +45,25 @@ template<> reg32 get<cr4>()
 	return res;
 }
 
+
+std::uint64_t get_msr(std::uint32_t index)
+{
+	std::uint32_t l, h;
+
+	asm volatile(
+		"mov %2, %%ecx\n"
+		"rdmsr\n"
+		"mov %%eax, %0\n"
+		"mov %%edx, %1\n"
+
+		:"=m"(l), "=m"(h)
+		:"m"(index)
+		:"ecx", "edx", "eax"
+	);
+
+	return ((std::uint64_t)h << 32 | l);
+}
+
 }
 }
 
