@@ -8,20 +8,20 @@ namespace x86
 namespace ports
 {
 
-template<std::uint8_t N>
-void out(std::uint8_t value)
+template<typename T, std::uint32_t N>
+void out(T value)
 {
 	asm volatile(
-		"outb %1, %0"
+		"out %1, %0"
 		::"i"(N), "r"(value));
 }
 
-template<std::uint8_t N>
-std::uint8_t in()
+template<typename T, std::uint32_t N>
+T in()
 {
-	std::uint8_t ret;
+	T ret;
 	asm volatile(
-		"inb %0, %1"
+		"in %0, %1"
 		::"i"(N), "r"(ret));
 
 	return ret;
