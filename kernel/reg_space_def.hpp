@@ -9,7 +9,7 @@ namespace kernel
 template<typename N, typename T>
 struct reg_space_def
 {
-	template<N n>
+	template<N n, typename RT = T>
 	struct r
 	{
 		using name = std::integral_constant<N, n>;
@@ -17,6 +17,7 @@ struct reg_space_def
 			std::uint32_t,
 			static_cast<typename std::underlying_type<N>::type>(n)
 			>;
+		using type = RT;
 	};
 
 	template<typename... Regs>
@@ -35,18 +36,21 @@ struct reg_space_def
 		};
 
 		template<N R>
-		std::uint32_t address() const
-		{
-			using find_register = typename meta::find_if<regs_list, reg_match<R>>::type;
-			using reg_type = meta::first<find_register>;
-
-			return base_ + reg_type::offset::value;
-		}
+		using find_register_sublist = typename meta::find_if<regs_list, reg_match<R>>::type;
 
 		template<N R>
-		T read()
+		using register_type = meta::first<find_register_sublist<R>>;
+
+		template<N R>
+		std::uint32_t address() const
 		{
-			return *(T *)(address<R>());
+			return base_ + register_type<R>::offset::value;
+		}
+
+		template<N R, typename RetType = typename register_type<R>::type>
+		RetType read() const
+		{
+			return *reinterpret_cast<RetType *>(address<R>());
 		}
 
 		std::uint32_t base_;
