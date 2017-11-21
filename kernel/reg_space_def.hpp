@@ -6,7 +6,16 @@
 namespace kernel
 {
 
-template<typename N, typename T>
+struct MemoryAccessor
+{
+	template<typename Ret>
+	static Ret read(std::size_t address)
+	{
+		return *reinterpret_cast<Ret *>(address);
+	}
+};
+
+template<typename N, typename T, typename Accessor = MemoryAccessor>
 struct reg_space_def
 {
 	template<N n, typename RT = T>
@@ -50,9 +59,10 @@ struct reg_space_def
 		template<N R, typename RetType = typename register_type<R>::type>
 		RetType read() const
 		{
-			return *reinterpret_cast<RetType *>(address<R>());
+			return Accessor::template read<RetType>(address<R>());
 		}
 
+	private:
 		std::uint32_t base_;
 	};
 };
