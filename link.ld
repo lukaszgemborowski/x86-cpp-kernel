@@ -21,9 +21,16 @@ SECTIONS {
 		_stack_top = . ;
 	}
 
-	.init_array : {
+	.init_array : ALIGN(4k) {
 		_init_array_begin = . ;
 		*(.init_array)
+		*(.ctors)
 		_init_array_end = . ;
+	}
+
+	.bss : ALIGN(4k) {
+		_bss_begin = . ;
+		*(.bss)
+		_bss_end = . ;
 	}
 } 
