@@ -30,9 +30,23 @@ extern "C" void isr_handler0(std::uint32_t eip)
 	asm("hlt");
 }
 
-extern "C" void isr_handler8(std::uint32_t source_ip)
+extern "C" void isr_handler8(std::uint32_t code, std::uint32_t source_ip)
 {
 	kernel::println(screen, "double fault from ", kernel::hex(source_ip) ,", aborting");
+
+	asm("hlt");
+}
+
+extern "C" void isr_handler13(std::uint32_t code, std::uint32_t source_ip)
+{
+	kernel::println(screen, "general protection fault from ", kernel::hex(source_ip) ,", aborting");
+
+	asm("hlt");
+}
+
+extern "C" void isr_handler14(std::uint32_t code, std::uint32_t source_ip)
+{
+	kernel::println(screen, "page fault from ", kernel::hex(source_ip) ,", code: ", code, ", aborting");
 
 	asm("hlt");
 }
@@ -48,8 +62,11 @@ void main()
 	kernel::println(screen, "CR4: ", kernel::hex(x86::regs::get<x86::regs::cr4>()));
 	kernel::println(screen, "APIC MSR: ", kernel::hex(x86::regs::get_msr(0x1b)));
 	kernel::println(screen, "APIC enabled: ", apic.is_enabled());
+	kernel::println(screen, "APIC version register: 0x", kernel::hex(apic.access.read<drivers::apic::regs::Version>()));
 
 	x86_init_gdt();
+
+	kernel::println(screen, "new GDT loaded\ninitializing IDT...");
 
 	for (int i = 0; i < 32; i ++) {
 		idt.set_interrupt(i, 8, 0, false);
@@ -57,11 +74,11 @@ void main()
 
 	idt.set_interrupt(0, 8, (std::uint32_t)&isr0, true);
 	idt.set_interrupt(8, 8, (std::uint32_t)&isr8, true);
+	idt.set_interrupt(8, 8, (std::uint32_t)&isr13, true);
+	idt.set_interrupt(8, 8, (std::uint32_t)&isr14, true);
 
+	kernel::println(screen, "enabling interrupts");
 	idt.reload();
-
-	kernel::println(screen, "new GDT loaded");
-	kernel::println(screen, "APIC version register: 0x", kernel::hex(apic.access.read<drivers::apic::regs::Version>()));
 
 	// interrupt check
 	kernel::println(screen, "Triggering div by zero exception by executing 1/0 statement");
