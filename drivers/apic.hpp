@@ -12,7 +12,8 @@ struct apic
 	enum class regs : std::uint32_t
 	{
 		ID = 0x20,
-		Version = 0x30
+		Version = 0x30,
+		SpuriousSVR = 0xF0
 	};
 
 private:
@@ -27,7 +28,8 @@ private:
 public:
 	sd::regs<
 		sd::r<regs::ID>,
-		sd::r<regs::Version>
+		sd::r<regs::Version>,
+		sd::r<regs::SpuriousSVR>
 	> access;
 
 	apic() :
