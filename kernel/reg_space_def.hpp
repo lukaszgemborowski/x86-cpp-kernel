@@ -2,6 +2,7 @@
 #define KERNEL_REG_SPACE_DEF_HPP
 
 #include <meta/meta.hpp>
+#include <kernel/x86/ports.hpp>
 
 namespace kernel
 {
@@ -12,6 +13,27 @@ struct MemoryAccessor
 	static Ret read(std::size_t address)
 	{
 		return *reinterpret_cast<Ret *>(address);
+	}
+
+	template<typename WriteType>
+	static void write(std::size_t address, WriteType data)
+	{
+		*reinterpret_cast<WriteType *>(address) = data;
+	}
+};
+
+struct PortsAccessor
+{
+	template<typename Ret>
+	static Ret read(std::size_t address)
+	{
+		return kernel::x86::ports::in<Ret>(address);
+	}
+
+	template<typename WriteType>
+	static void write(std::size_t address, WriteType data)
+	{
+		kernel::x86::ports::out<WriteType>(address, data);
 	}
 };
 
@@ -60,6 +82,12 @@ struct reg_space_def
 		RetType read() const
 		{
 			return Accessor::template read<RetType>(address<R>());
+		}
+
+		template<N R, typename WriteType = typename register_type<R>::type>
+		void write(WriteType data) const
+		{
+			Accessor::template write<WriteType>(address<R>(), data);
 		}
 
 	private:
