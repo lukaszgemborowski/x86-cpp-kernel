@@ -24,31 +24,59 @@ void x86_init_gdt()
 
 x86::vga screen;
 
-extern "C" void isr_handler0(std::uint32_t eip)
+#define HANDLER(n) \
+	extern "C" void isr_handler ## n (std::uint32_t eip)          \
+	{                                                             \
+		kernel::println(screen, "exception ", n,                  \
+			", eip: ", kernel::hex(eip));                         \
+		asm("hlt");                                               \
+	}
+
+#define HANDLER_CODE(n) \
+	extern "C" void isr_handler ## n (std::uint32_t code, std::uint32_t eip)          \
+	{                                                                                 \
+		kernel::println(screen, "exception ", n,                                      \
+			", eip: ", kernel::hex(eip), ", code: ", kernel::hex(code));              \
+		asm("hlt");                                                                   \
+	}
+
+HANDLER(0);
+HANDLER(1);
+HANDLER(2);
+HANDLER(3);
+HANDLER(4);
+HANDLER(5);
+HANDLER(6);
+HANDLER(7);
+HANDLER_CODE(8);
+HANDLER(9);
+HANDLER_CODE(10);
+HANDLER_CODE(11);
+HANDLER_CODE(12);
+HANDLER_CODE(13);
+HANDLER_CODE(14);
+HANDLER(15);
+HANDLER(16);
+HANDLER_CODE(17);
+HANDLER(18);
+HANDLER(19);
+HANDLER(20);
+
+extern std::uint32_t isr_address_map;
+
+void x86_init_idt()
 {
-	kernel::println(screen, "div by zero from: 0x", kernel::hex(eip));
-	asm("hlt");
-}
+	for (int i = 0; i < 32; i ++) {
+		idt.set_interrupt(i, 8, 0, false);
+	}
 
-extern "C" void isr_handler8(std::uint32_t code, std::uint32_t source_ip)
-{
-	kernel::println(screen, "double fault from ", kernel::hex(source_ip) ,", aborting");
+	for (int i = 0; i < 20; i ++) {
+		idt.set_interrupt(
+			i, 8, static_cast<std::uint32_t>(*(&isr_address_map + i)), true);
+	}
 
-	asm("hlt");
-}
-
-extern "C" void isr_handler13(std::uint32_t code, std::uint32_t source_ip)
-{
-	kernel::println(screen, "general protection fault from ", kernel::hex(source_ip) ,", aborting");
-
-	asm("hlt");
-}
-
-extern "C" void isr_handler14(std::uint32_t code, std::uint32_t source_ip)
-{
-	kernel::println(screen, "page fault from ", kernel::hex(source_ip) ,", code: ", code, ", aborting");
-
-	asm("hlt");
+	kernel::println(screen, "enabling interrupts");
+	idt.reload();
 }
 
 extern "C"
@@ -68,20 +96,11 @@ void main()
 
 	kernel::println(screen, "new GDT loaded\ninitializing IDT...");
 
-	for (int i = 0; i < 32; i ++) {
-		idt.set_interrupt(i, 8, 0, false);
-	}
-
-	idt.set_interrupt(0, 8, (std::uint32_t)&isr0, true);
-	idt.set_interrupt(8, 8, (std::uint32_t)&isr8, true);
-	idt.set_interrupt(8, 8, (std::uint32_t)&isr13, true);
-	idt.set_interrupt(8, 8, (std::uint32_t)&isr14, true);
-
-	kernel::println(screen, "enabling interrupts");
-	idt.reload();
+	x86_init_idt();
 
 	// interrupt check
 	kernel::println(screen, "Triggering div by zero exception by executing 1/0 statement");
+
 	asm volatile(
 		"movw $0, %ax\n"
 		"divw %ax, %ax\n");

@@ -35,6 +35,47 @@ isr%1:
 %endmacro
 
 isr 0
-isr 8
+isr 1
+isr 2
+isr 3
+isr 4
+isr 5
+isr 6
+isr 7
+isr_code 8
+isr 9
+isr_code 10
+isr_code 11
+isr_code 12
 isr_code 13
 isr_code 14
+isr 15
+isr 16
+isr_code 17
+isr 18
+isr 19
+isr 20
+
+global isr_address_map
+isr_address_map:
+	dd isr0
+	dd isr1
+	dd isr2
+	dd isr3
+	dd isr4
+	dd isr5
+	dd isr6
+	dd isr7
+	dd isr8
+	dd isr9
+	dd isr10
+	dd isr11
+	dd isr12
+	dd isr13
+	dd isr14
+	dd isr15
+	dd isr16
+	dd isr17
+	dd isr18
+	dd isr19
+	dd isr20
