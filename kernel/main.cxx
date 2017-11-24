@@ -4,6 +4,7 @@
 #include "x86/regs.h"
 #include "x86/isrs.h"
 #include "drivers/apic.hpp"
+#include "drivers/pic.hpp"
 #include <initializer_list>
 #include "print.h"
 
@@ -83,6 +84,7 @@ extern "C"
 void main()
 {
 	drivers::apic apic;
+	drivers::pic pic;
 	screen.clear();
 	kernel::println(screen, "Hello: ", 666, ", ", kernel::hex('A'));
 	kernel::println(screen, "ESP: ", kernel::hex(x86::regs::get<x86::regs::esp>()));
@@ -96,6 +98,7 @@ void main()
 
 	kernel::println(screen, "new GDT loaded\ninitializing IDT...");
 
+	pic.remap_default();
 	x86_init_idt();
 
 	// interrupt check
