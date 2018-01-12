@@ -7,6 +7,7 @@
 #include "drivers/pic.hpp"
 #include <initializer_list>
 #include "print.h"
+#include "kernel/utils/bitops.hpp"
 
 std::uint64_t gdt[5];
 kernel::x86::idt_table<32> idt;
@@ -80,6 +81,22 @@ void x86_init_idt()
 	idt.reload();
 }
 
+enum class PdeIdx
+{
+	Address,
+	G, S, A, D, W, U, R, P
+};
+
+using pde_bits = kernel::utils::with_index<PdeIdx>;
+
+using pde_layout = pde_bits::bitfield<
+	std::uint32_t,
+	pde_bits::field<PdeIdx::Address, 31, 12>,
+	pde_bits::field<PdeIdx::G, 8, 8>,
+	// ...
+	pde_bits::field<PdeIdx::P, 0, 0>
+>;
+
 extern "C"
 void main()
 {
@@ -93,6 +110,13 @@ void main()
 	kernel::println(screen, "APIC MSR: ", kernel::hex(x86::regs::get_msr(0x1b)));
 	kernel::println(screen, "APIC enabled: ", apic.is_enabled());
 	kernel::println(screen, "APIC version register: 0x", kernel::hex(apic.access.read<drivers::apic::regs::Version>()));
+
+	std::uint32_t pde = 0;
+
+	pde_layout::set<PdeIdx::Address>(pde, 0xABC);
+	pde_layout::set<PdeIdx::P>(pde, 1);
+
+	kernel::println(screen, kernel::hex(pde));
 
 	x86_init_gdt();
 
